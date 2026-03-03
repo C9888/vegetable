@@ -25,6 +25,9 @@ public interface UserMapper {
 
     @Update("UPDATE user SET password = #{password}, update_time = NOW() WHERE id = #{id}")
     int updatePassword(@Param("id") Integer id, @Param("password") String password);
+    
+    @Update("UPDATE user SET phone = #{phone}, update_time = NOW() WHERE id = #{id}")
+    int updatePhone(@Param("id") Integer id, @Param("phone") String phone);
 
     @Delete("DELETE FROM user WHERE id = #{id}")
     int deleteById(Integer id);

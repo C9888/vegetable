@@ -103,4 +103,19 @@ public class UserService {
         user.setStatus(user.getStatus() == 1 ? 0 : 1);
         return userMapper.update(user) > 0;
     }
+    
+    /**
+     * 更新密码
+     */
+    public boolean updatePassword(Integer userId, String newPassword) {
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        return userMapper.updatePassword(userId, encodedPassword) > 0;
+    }
+    
+    /**
+     * 更新手机号
+     */
+    public boolean updatePhone(Integer userId, String phone) {
+        return userMapper.updatePhone(userId, phone) > 0;
+    }
 }

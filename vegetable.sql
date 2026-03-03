@@ -139,7 +139,24 @@ CREATE TABLE `vegetable`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '蔬菜信息表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of vegetable
+-- Records of vegetableError starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2026-03-04 04:01:37.726 ERROR 82324 --- [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Field browseHistoryMapper in com.mall.vegetable.service.BrowseHistoryService required a bean of type 'com.mall.vegetable.mapper.BrowseHistoryMapper' that could not be found.
+
+The injection point has the following annotations:
+	- @org.springframework.beans.factory.annotation.Autowired(required=true)
+
+
+Action:
+
+Consider defining a bean of type 'com.mall.vegetable.mapper.BrowseHistoryMapper' in your configuration.
 -- ----------------------------
 INSERT INTO `vegetable` VALUES (1, '西红柿', 'Tomato', '茄果类', 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400', '富含维生素C、番茄红素、钾、叶酸、维生素K', '抗氧化、保护心血管、增强免疫力、美容养颜', '选择颜色鲜红、果实饱满、无损伤、手感适中的', '常温保存或冷藏，避免阳光直射', '西红柿是茄科番茄属植物，原产于南美洲，现广泛栽培于世界各地。', 1, '2026-03-04 03:09:43', '2026-03-04 03:09:43');
 INSERT INTO `vegetable` VALUES (2, '黄瓜', 'Cucumber', '瓜类', 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?w=400', '富含水分、维生素C、维生素K、钾、镁', '清热解毒、利尿消肿、美容护肤、减肥瘦身', '选择表皮翠绿、刺瘤明显、手感硬实的', '冷藏保存，用保鲜膜包裹可延长保鲜', '黄瓜是葫芦科黄瓜属植物，含水量高达96%，是夏季消暑佳品。', 1, '2026-03-04 03:09:43', '2026-03-04 03:09:43');
@@ -151,5 +168,22 @@ INSERT INTO `vegetable` VALUES (7, '茄子', 'Eggplant', '茄果类', 'https://i
 INSERT INTO `vegetable` VALUES (8, '青椒', 'Green Pepper', '茄果类', 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400', '富含维生素C、维生素A、钾', '增强免疫力、促进消化、抗氧化', '选择表皮光滑、颜色鲜亮、手感硬实的', '冷藏保存，可存放一周左右', '青椒是茄科辣椒属植物，不辣，适合各种烹饪方式。', 1, '2026-03-04 03:09:43', '2026-03-04 03:09:43');
 INSERT INTO `vegetable` VALUES (9, '西兰花', 'Broccoli', '花菜类', 'https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?w=400', '富含维生素C、维生素K、叶酸、膳食纤维', '抗癌防癌、增强免疫力、保护心血管', '选择花球紧实、颜色深绿、无黄花的', '冷藏保存，尽快食用', '西兰花是十字花科芸苔属植物，被誉为\"蔬菜皇冠\"。', 1, '2026-03-04 03:09:43', '2026-03-04 03:09:43');
 INSERT INTO `vegetable` VALUES (10, '豆角', 'Green Bean', '豆类', 'https://images.unsplash.com/photo-1567375698348-5d9d5ae99de0?w=400', '富含蛋白质、膳食纤维、维生素C、钾', '提供蛋白质、促进消化、增强饱腹感', '选择颜色翠绿、无虫眼、手感脆嫩的', '冷藏保存，尽快食用', '豆角是豆科菜豆属植物，需要充分煮熟后食用。', 1, '2026-03-04 03:09:43', '2026-03-04 03:09:43');
+
+-- ----------------------------
+-- Table structure for browse_history
+-- ----------------------------
+DROP TABLE IF EXISTS `browse_history`;
+CREATE TABLE `browse_history`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL COMMENT '用户ID',
+  `vegetable_id` int NOT NULL COMMENT '蔬菜ID',
+  `browse_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '浏览时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_user_browse`(`user_id` ASC, `browse_time` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '浏览记录表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of browse_history
+-- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;
