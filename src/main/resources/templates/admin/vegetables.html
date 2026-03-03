@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蔬菜管理 - 管理后台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: #f5f5f5; display: flex; min-height: 100vh; }
+        
+        .sidebar {
+            width: 220px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #34495e;
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-header h2 { font-size: 18px; }
+        .sidebar-header .badge {
+            display: inline-block;
+            background: #e74c3c;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+        
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li a {
+            display: block;
+            padding: 12px 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .sidebar-menu li a:hover { background: #34495e; color: white; }
+        .sidebar-menu li a.active {
+            background: #667eea;
+            color: white;
+            border-left: 3px solid #fff;
+        }
+        
+        .main-content { flex: 1; padding: 20px; }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .page-header h1 { color: #333; font-size: 24px; }
+        
+        .btn-add {
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .search-bar {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        .search-bar button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .data-table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        table { width: 100%; border-collapse: collapse; }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #f8f9fa;
+            color: #666;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        td { font-size: 14px; color: #333; }
+        
+        tr:hover { background: #f8f9fa; }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .status-badge.active { background: #d4edda; color: #155724; }
+        .status-badge.inactive { background: #f8d7da; color: #721c24; }
+        
+        .action-btns { display: flex; gap: 5px; }
+        
+        .btn-edit, .btn-delete {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-edit { background: #17a2b8; color: white; }
+        .btn-delete { background: #dc3545; color: white; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.show { display: flex; }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 { color: #333; }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #333; font-size: 14px; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        .btn-cancel {
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .btn-save {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>🥬 蔬菜系统 <span class="badge">管理员</span></h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/admin/dashboard">📊 控制台</a></li>
+            <li><a href="/admin/vegetables" class="active">🥬 蔬菜管理</a></li>
+            <li><a href="/admin/recipes">🍳 菜谱管理</a></li>
+            <li><a href="/admin/users">👥 用户管理</a></li>
+            <li><a href="/logout">🚪 退出登录</a></li>
+        </ul>
+    </aside>
+    
+    <main class="main-content">
+        <div class="page-header">
+            <h1>蔬菜管理</h1>
+            <button class="btn-add" onclick="openAddModal()">+ 添加蔬菜</button>
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="搜索蔬菜名称...">
+            <button onclick="searchVegetables()">搜索</button>
+        </div>
+        
+        <div class="data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>名称</th>
+                        <th>英文名</th>
+                        <th>分类</th>
+                        <th>营养成分</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="vegetable : ${vegetables}">
+                        <td th:text="${vegetable.id}">1</td>
+                        <td th:text="${vegetable.name}">西红柿</td>
+                        <td th:text="${vegetable.nameEn}">Tomato</td>
+                        <td th:text="${vegetable.category}">茄果类</td>
+                        <td th:text="${#strings.abbreviate(vegetable.nutrition, 30)}">营养成分</td>
+                        <td>
+                            <span class="status-badge" th:classappend="${vegetable.status == 1} ? 'active' : 'inactive'" th:text="${vegetable.status == 1} ? '正常' : '禁用'">正常</span>
+                        </td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-edit" th:onclick="'editVegetable(' + ${vegetable.id} + ')'">编辑</button>
+                                <button class="btn-delete" th:onclick="'deleteVegetable(' + ${vegetable.id} + ')'">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+    
+    <div class="modal" id="vegetableModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">添加蔬菜</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="vegetableForm" action="/admin/vegetable/save" method="post">
+                <input type="hidden" name="id" id="vegetableId">
+                <div class="form-group">
+                    <label>蔬菜名称 *</label>
+                    <input type="text" name="name" id="vegeName" required>
+                </div>
+                <div class="form-group">
+                    <label>英文名称</label>
+                    <input type="text" name="nameEn" id="vegeNameEn">
+                </div>
+                <div class="form-group">
+                    <label>分类 *</label>
+                    <select name="category" id="vegeCategory" required>
+                        <option value="">请选择分类</option>
+                        <option value="茄果类">茄果类</option>
+                        <option value="叶菜类">叶菜类</option>
+                        <option value="根茎类">根茎类</option>
+                        <option value="瓜类">瓜类</option>
+                        <option value="薯芋类">薯芋类</option>
+                        <option value="花菜类">花菜类</option>
+                        <option value="豆类">豆类</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>营养成分</label>
+                    <textarea name="nutrition" id="vegeNutrition"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>功效作用</label>
+                    <textarea name="benefits" id="vegeBenefits"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>挑选技巧</label>
+                    <textarea name="selectionTips" id="vegeSelectionTips"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>储存方法</label>
+                    <textarea name="storageMethod" id="vegeStorageMethod"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>详细介绍</label>
+                    <textarea name="description" id="vegeDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>状态</label>
+                    <select name="status" id="vegeStatus">
+                        <option value="1">正常</option>
+                        <option value="0">禁用</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn-save">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = '添加蔬菜';
+            document.getElementById('vegetableForm').reset();
+            document.getElementById('vegetableId').value = '';
+            document.getElementById('vegetableModal').classList.add('show');
+        }
+        
+        function editVegetable(id) {
+            fetch('/admin/vegetable/' + id)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('modalTitle').textContent = '编辑蔬菜';
+                    document.getElementById('vegetableId').value = data.id;
+                    document.getElementById('vegeName').value = data.name;
+                    document.getElementById('vegeNameEn').value = data.nameEn || '';
+                    document.getElementById('vegeCategory').value = data.category;
+                    document.getElementById('vegeNutrition').value = data.nutrition || '';
+                    document.getElementById('vegeBenefits').value = data.benefits || '';
+                    document.getElementById('vegeSelectionTips').value = data.selectionTips || '';
+                    document.getElementById('vegeStorageMethod').value = data.storageMethod || '';
+                    document.getElementById('vegeDescription').value = data.description || '';
+                    document.getElementById('vegeStatus').value = data.status;
+                    document.getElementById('vegetableModal').classList.add('show');
+                });
+        }
+        
+        function closeModal() {
+            document.getElementById('vegetableModal').classList.remove('show');
+        }
+        
+        function deleteVegetable(id) {
+            if (confirm('确定要删除这个蔬菜吗？')) {
+                window.location.href = '/admin/vegetable/delete/' + id;
+            }
+        }
+        
+        function searchVegetables() {
+            const keyword = document.getElementById('searchInput').value;
+            window.location.href = '/admin/vegetables?keyword=' + encodeURIComponent(keyword);
+        }
+    </script>
+</body>
+</html>

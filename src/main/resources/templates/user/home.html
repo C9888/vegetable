@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户首页 - 蔬菜识别系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: #f5f5f5; }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo { font-size: 22px; font-weight: bold; }
+        
+        .nav { display: flex; gap: 30px; }
+        .nav a { color: white; text-decoration: none; font-size: 14px; opacity: 0.9; }
+        .nav a:hover { opacity: 1; }
+        .nav a.active { font-weight: bold; border-bottom: 2px solid white; }
+        
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info span { font-size: 14px; }
+        
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 6px 15px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .btn-logout:hover { background: white; color: #667eea; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+        .search-box input:focus { border-color: #667eea; }
+        
+        .search-box button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .category-tab {
+            padding: 8px 20px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .category-tab:hover { border-color: #667eea; color: #667eea; }
+        .category-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .vegetable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .vegetable-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .vegetable-card:hover { transform: translateY(-5px); }
+        
+        .vegetable-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+        }
+        
+        .vegetable-info { padding: 15px; }
+        .vegetable-info h3 { color: #333; margin-bottom: 5px; }
+        .vegetable-info .category { color: #999; font-size: 12px; margin-bottom: 8px; }
+        .vegetable-info .nutrition {
+            color: #666;
+            font-size: 13px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .vegetable-footer {
+            padding: 10px 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .recipe-count { color: #667eea; font-size: 13px; }
+        
+        .btn-view {
+            padding: 5px 15px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #666;
+        }
+        .btn-view:hover { background: #667eea; color: white; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🥬 蔬菜识别系统</div>
+            <nav class="nav">
+                <a href="/user/home" class="active">蔬菜百科</a>
+                <a href="/user/recipes">菜谱大全</a>
+                <a href="/user/favorites">我的收藏</a>
+                <a href="/user/history">识别记录</a>
+            </nav>
+            <div class="user-info">
+                <span>欢迎，<strong th:text="${user.username}">用户</strong></span>
+                <a href="/logout" class="btn-logout">退出登录</a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="搜索蔬菜名称..." onkeypress="if(event.key==='Enter')searchVegetables()">
+            <button onclick="searchVegetables()">🔍 搜索</button>
+        </div>
+        
+        <div class="category-tabs">
+            <span class="category-tab active" onclick="filterByCategory('')">全部</span>
+            <span class="category-tab" onclick="filterByCategory('茄果类')">茄果类</span>
+            <span class="category-tab" onclick="filterByCategory('叶菜类')">叶菜类</span>
+            <span class="category-tab" onclick="filterByCategory('根茎类')">根茎类</span>
+            <span class="category-tab" onclick="filterByCategory('瓜类')">瓜类</span>
+            <span class="category-tab" onclick="filterByCategory('薯芋类')">薯芋类</span>
+            <span class="category-tab" onclick="filterByCategory('花菜类')">花菜类</span>
+            <span class="category-tab" onclick="filterByCategory('豆类')">豆类</span>
+        </div>
+        
+        <div class="vegetable-grid" id="vegetableGrid">
+            <div class="vegetable-card" th:each="vegetable : ${vegetables}" th:onclick="'viewDetail(' + ${vegetable.id} + ')'">
+                <div class="vegetable-image">🥬</div>
+                <div class="vegetable-info">
+                    <h3 th:text="${vegetable.name}">蔬菜名称</h3>
+                    <div class="category" th:text="${vegetable.category}">分类</div>
+                    <div class="nutrition" th:text="${vegetable.nutrition}">营养成分</div>
+                </div>
+                <div class="vegetable-footer">
+                    <span class="recipe-count">📋 多道菜谱</span>
+                    <button class="btn-view">查看详情</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function searchVegetables() {
+            const keyword = document.getElementById('searchInput').value;
+            window.location.href = '/user/home?keyword=' + encodeURIComponent(keyword);
+        }
+        
+        function filterByCategory(category) {
+            document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            window.location.href = '/user/home?category=' + encodeURIComponent(category);
+        }
+        
+        function viewDetail(id) {
+            window.location.href = '/user/vegetable/' + id;
+        }
+    </script>
+</body>
+</html>

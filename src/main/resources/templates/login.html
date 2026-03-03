@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蔬菜识别系统 - 登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            color: #667eea;
+            font-size: 28px;
+        }
+        
+        .logo p {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .role-select {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .role-select label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .role-select input[type="radio"] {
+            margin-right: 5px;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+        }
+        
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .links a:hover {
+            text-decoration: underline;
+        }
+        
+        .alert {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        
+        .alert-success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🥬 蔬菜识别系统</h1>
+            <p>智能识别，健康饮食</p>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        
+        <form action="/auth/login" method="post">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" placeholder="请输入用户名" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" placeholder="请输入密码" required>
+            </div>
+            
+            <div class="role-select">
+                <label>
+                    <input type="radio" name="role" value="0" checked>
+                    普通用户
+                </label>
+                <label>
+                    <input type="radio" name="role" value="1">
+                    管理员
+                </label>
+            </div>
+            
+            <button type="submit" class="btn-login">登 录</button>
+        </form>
+        
+        <div class="links">
+            <p>还没有账号？<a href="/register">立即注册</a></p>
+        </div>
+    </div>
+</body>
+</html>

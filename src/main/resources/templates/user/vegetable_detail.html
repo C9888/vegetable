@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${vegetable.name} + ' - 蔬菜详情'">蔬菜详情</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: #f5f5f5; }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo { font-size: 22px; font-weight: bold; }
+        .nav { display: flex; gap: 30px; }
+        .nav a { color: white; text-decoration: none; font-size: 14px; opacity: 0.9; }
+        .nav a:hover { opacity: 1; }
+        
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 6px 15px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        .breadcrumb {
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .breadcrumb a { color: #667eea; text-decoration: none; }
+        
+        .detail-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .detail-header {
+            display: flex;
+            padding: 30px;
+            gap: 30px;
+        }
+        
+        .detail-image {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 120px;
+            flex-shrink: 0;
+        }
+        
+        .detail-info { flex: 1; }
+        .detail-info h1 { color: #333; font-size: 32px; margin-bottom: 10px; }
+        .detail-info .en-name { color: #999; font-size: 16px; margin-bottom: 20px; }
+        .detail-info .category-tag {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .info-section { margin-bottom: 20px; }
+        .info-section h3 {
+            color: #667eea;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .info-section p { color: #666; line-height: 1.8; }
+        
+        .recipes-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .recipes-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .recipe-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        
+        .recipe-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .recipe-card:hover { border-color: #667eea; box-shadow: 0 2px 10px rgba(102,126,234,0.2); }
+        
+        .recipe-card h4 { color: #333; margin-bottom: 10px; }
+        .recipe-meta { display: flex; gap: 15px; font-size: 12px; color: #999; }
+        .recipe-meta span { display: flex; align-items: center; gap: 5px; }
+        
+        .btn-favorite {
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🥬 蔬菜识别系统</div>
+            <nav class="nav">
+                <a href="/user/home">蔬菜百科</a>
+                <a href="/user/recipes">菜谱大全</a>
+                <a href="/user/favorites">我的收藏</a>
+                <a href="/user/history">识别记录</a>
+            </nav>
+            <div class="user-info">
+                <span>欢迎，<strong th:text="${user.username}">用户</strong></span>
+                <a href="/logout" class="btn-logout">退出登录</a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="/user/home">蔬菜百科</a> &gt; <span th:text="${vegetable.name}">蔬菜名称</span>
+        </div>
+        
+        <div class="detail-card">
+            <div class="detail-header">
+                <div class="detail-image">🥬</div>
+                <div class="detail-info">
+                    <h1 th:text="${vegetable.name}">蔬菜名称</h1>
+                    <div class="en-name" th:text="${vegetable.nameEn}">英文名</div>
+                    <div class="category-tag" th:text="${vegetable.category}">分类</div>
+                    
+                    <div class="info-section">
+                        <h3>🥗 营养成分</h3>
+                        <p th:text="${vegetable.nutrition}">营养成分</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h3>💪 功效作用</h3>
+                        <p th:text="${vegetable.benefits}">功效作用</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h3>🔍 挑选技巧</h3>
+                        <p th:text="${vegetable.selectionTips}">挑选技巧</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h3>📦 储存方法</h3>
+                        <p th:text="${vegetable.storageMethod}">储存方法</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="padding: 0 30px 30px;">
+                <div class="info-section">
+                    <h3>📖 详细介绍</h3>
+                    <p th:text="${vegetable.description}">详细介绍</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="recipes-section">
+            <h2>🍳 推荐菜谱</h2>
+            <div class="recipe-list">
+                <div class="recipe-card" th:each="recipe : ${recipes}" th:onclick="'viewRecipe(' + ${recipe.id} + ')'">
+                    <h4 th:text="${recipe.name}">菜谱名称</h4>
+                    <div class="recipe-meta">
+                        <span>⏱️ <span th:text="${recipe.time}">时间</span></span>
+                        <span>📊 <span th:text="${recipe.difficulty}">难度</span></span>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(recipes)}" style="text-align: center; color: #999; padding: 30px;">
+                暂无相关菜谱
+            </div>
+        </div>
+    </div>
+    
+    <button class="btn-favorite" onclick="addToFavorite()" title="添加收藏">❤️</button>
+    
+    <script>
+        function viewRecipe(id) {
+            window.location.href = '/user/recipe/' + id;
+        }
+        
+        function addToFavorite() {
+            alert('已添加到收藏！');
+        }
+    </script>
+</body>
+</html>
