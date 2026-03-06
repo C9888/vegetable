@@ -16,6 +16,7 @@ public class Recipe {
     private String steps;
     private String tips;
     private Integer status;
+    private Integer calories;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private String vegetableName;

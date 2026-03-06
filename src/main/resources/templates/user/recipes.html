@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>用户首页 - 蔬菜识别系统</title>
+    <title>菜谱大全 - 蔬菜识别系统</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: #f5f5f5; }
@@ -51,11 +51,16 @@
         
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         
+        .page-title {
+            margin-bottom: 30px;
+        }
+        .page-title h1 { color: #333; font-size: 28px; }
+        
         .search-box {
             background: white;
             padding: 8px;
             border-radius: 24px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             margin-bottom: 20px;
             display: flex;
             gap: 4px;
@@ -80,44 +85,13 @@
             font-size: 14px;
         }
         
-        .category-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            overflow-x: auto;
-            padding: 8px;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        
-        .category-tabs::-webkit-scrollbar {
-            display: none;
-        }
-        
-        .category-tab {
-            padding: 8px 20px;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-        .category-tab:hover { border-color: #667eea; color: #667eea; }
-        .category-tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: transparent;
-        }
-        
-        .vegetable-grid {
+        .recipe-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
         }
         
-        .vegetable-card {
+        .recipe-card {
             background: white;
             border-radius: 12px;
             overflow: hidden;
@@ -125,34 +99,47 @@
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
         }
-        .vegetable-card:hover {
+        .recipe-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
         }
         
-        .vegetable-image {
+        .recipe-image {
             width: 100%;
-            height: 180px;
+            height: 200px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 60px;
+            font-size: 80px;
         }
         
-        .vegetable-info { padding: 15px; }
-        .vegetable-info h3 { color: #333; margin-bottom: 5px; }
-        .vegetable-info .category { color: #999; font-size: 12px; margin-bottom: 8px; }
-        .vegetable-info .nutrition {
+        .recipe-info { padding: 16px; }
+        .recipe-info h3 { color: #333; margin-bottom: 10px; }
+        .recipe-info .vegetable-tag {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #f0f0f0;
+            border-radius: 16px;
+            font-size: 12px;
             color: #666;
-            font-size: 13px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            margin-bottom: 12px;
         }
         
-        .vegetable-footer {
+        .recipe-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        .recipe-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .recipe-footer {
             padding: 10px 15px;
             border-top: 1px solid #eee;
             display: flex;
@@ -160,7 +147,10 @@
             align-items: center;
         }
         
-        .recipe-count { color: #667eea; font-size: 13px; }
+        .rating {
+            color: #ffc107;
+            font-size: 14px;
+        }
         
         .btn-view {
             padding: 5px 15px;
@@ -179,67 +169,60 @@
         <div class="header-content">
             <div class="logo">🥬 蔬菜识别系统</div>
             <nav class="nav">
-                <a href="/user/home" class="active">蔬菜百科</a>
-                <a href="/user/recipes">菜谱大全</a>
+                <a href="/user/home">蔬菜百科</a>
+                <a href="/user/recipes" class="active">菜谱大全</a>
                 <a href="/user/favorites">我的收藏</a>
                 <a href="/user/history">识别记录</a>
                 <a href="/user/camera">拍照识别</a>
             </nav>
             <div class="user-info">
                 <span>欢迎，<strong th:text="${user.username}">用户</strong></span>
-                <a th:if="${user.role == 1}" href="/admin/dashboard" class="btn-logout" style="margin-right: 10px;">管理后台</a>
                 <a href="/logout" class="btn-logout">退出登录</a>
             </div>
         </div>
     </header>
     
     <div class="container">
+        <div class="page-title">
+            <h1>🍳 菜谱大全</h1>
+        </div>
+        
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="搜索蔬菜名称..." onkeypress="if(event.key==='Enter')searchVegetables()">
-            <button onclick="searchVegetables()">🔍 搜索</button>
+            <input type="text" id="searchInput" placeholder="搜索菜谱名称..." onkeypress="if(event.key==='Enter')searchRecipes()">
+            <button onclick="searchRecipes()">🔍 搜索</button>
         </div>
         
-        <div class="category-tabs">
-            <span class="category-tab active" onclick="filterByCategory('')">全部</span>
-            <span class="category-tab" onclick="filterByCategory('茄果类')">茄果类</span>
-            <span class="category-tab" onclick="filterByCategory('叶菜类')">叶菜类</span>
-            <span class="category-tab" onclick="filterByCategory('根茎类')">根茎类</span>
-            <span class="category-tab" onclick="filterByCategory('瓜类')">瓜类</span>
-            <span class="category-tab" onclick="filterByCategory('薯芋类')">薯芋类</span>
-            <span class="category-tab" onclick="filterByCategory('花菜类')">花菜类</span>
-            <span class="category-tab" onclick="filterByCategory('豆类')">豆类</span>
-        </div>
-        
-        <div class="vegetable-grid" id="vegetableGrid">
-            <div class="vegetable-card" th:each="vegetable : ${vegetables}" th:onclick="'viewDetail(' + ${vegetable.id} + ')'">
-                <div class="vegetable-image">🥬</div>
-                <div class="vegetable-info">
-                    <h3 th:text="${vegetable.name}">蔬菜名称</h3>
-                    <div class="category" th:text="${vegetable.category}">分类</div>
-                    <div class="nutrition" th:text="${vegetable.nutrition}">营养成分</div>
+        <div class="recipe-grid" id="recipeGrid">
+            <div class="recipe-card" th:each="recipe : ${recipes}" th:onclick="'viewRecipe(' + ${recipe.id} + ')'">
+                <div class="recipe-image">🍳</div>
+                <div class="recipe-info">
+                    <h3 th:text="${recipe.name}">菜谱名称</h3>
+                    <div class="vegetable-tag" th:text="${recipe.vegetableName}">关联蔬菜</div>
+                    <div class="recipe-meta">
+                        <span>⏱️ <span th:text="${recipe.time}">时间</span></span>
+                        <span>📊 <span th:text="${recipe.difficulty}">难度</span></span>
+                        <span>🍽️ <span th:text="${recipe.servings} + '人份'">份量</span></span>
+                    </div>
                 </div>
-                <div class="vegetable-footer">
-                    <span class="recipe-count">📋 多道菜谱</span>
+                <div class="recipe-footer">
+                    <div class="rating" th:utext="${#strings.repeat('★', recipe.avgScore != null ? #numbers.integer(recipe.avgScore) : 0)}">★★★★☆</div>
                     <button class="btn-view">查看详情</button>
                 </div>
             </div>
         </div>
+        <div th:if="${#lists.isEmpty(recipes)}" style="text-align: center; color: #999; padding: 50px;">
+            暂无菜谱
+        </div>
     </div>
     
     <script>
-        function searchVegetables() {
+        function searchRecipes() {
             const keyword = document.getElementById('searchInput').value;
-            window.location.href = '/user/home?keyword=' + encodeURIComponent(keyword);
+            window.location.href = '/user/recipes?keyword=' + encodeURIComponent(keyword);
         }
         
-        function filterByCategory(category) {
-            document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            window.location.href = '/user/home?category=' + encodeURIComponent(category);
-        }
-        
-        function viewDetail(id) {
-            window.location.href = '/user/vegetable/' + id;
+        function viewRecipe(id) {
+            window.location.href = '/user/recipe/' + id;
         }
     </script>
 </body>

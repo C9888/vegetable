@@ -1,9 +1,11 @@
 package com.mall.vegetable.controller;
 
 import com.mall.vegetable.pojo.Recipe;
+import com.mall.vegetable.pojo.RecognitionHistory;
 import com.mall.vegetable.pojo.User;
 import com.mall.vegetable.pojo.Vegetable;
 import com.mall.vegetable.service.RecipeService;
+import com.mall.vegetable.service.RecognitionHistoryService;
 import com.mall.vegetable.service.VegetableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,6 +24,9 @@ public class UserController {
 
     @Autowired
     private RecipeService recipeService;
+
+    @Autowired
+    private RecognitionHistoryService recognitionHistoryService;
 
     private boolean checkUser(HttpSession session) {
         User user = (User) session.getAttribute("user");
@@ -72,12 +77,19 @@ public class UserController {
     }
 
     @GetMapping("/recipes")
-    public String recipes(HttpSession session, Model model) {
+    public String recipes(@RequestParam(required = false) String keyword,
+                         HttpSession session, Model model) {
         if (!checkUser(session)) {
             return "redirect:/login";
         }
         
-        List<Recipe> recipes = recipeService.findAll();
+        List<Recipe> recipes;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            recipes = recipeService.searchByKeyword(keyword);
+        } else {
+            recipes = recipeService.findAll();
+        }
+        
         for (Recipe recipe : recipes) {
             Vegetable vege = vegetableService.findById(recipe.getVegetableId());
             if (vege != null) {
@@ -87,6 +99,7 @@ public class UserController {
         
         model.addAttribute("user", session.getAttribute("user"));
         model.addAttribute("recipes", recipes);
+        model.addAttribute("keyword", keyword);
         return "user/recipes";
     }
 
@@ -127,8 +140,22 @@ public class UserController {
         if (!checkUser(session)) {
             return "redirect:/login";
         }
+
+        User user = (User) session.getAttribute("user");
+        List<RecognitionHistory> histories = recognitionHistoryService.findByUserId(user.getId());
+
+        model.addAttribute("user", user);
+        model.addAttribute("histories", histories);
+        return "user/history";
+    }
+    
+    @GetMapping("/camera")
+    public String camera(HttpSession session, Model model) {
+        if (!checkUser(session)) {
+            return "redirect:/login";
+        }
         
         model.addAttribute("user", session.getAttribute("user"));
-        return "user/history";
+        return "user/camera";
     }
 }

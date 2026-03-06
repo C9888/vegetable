@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>蔬菜管理 - 管理后台</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -249,10 +252,13 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>图片</th>
                         <th>名称</th>
                         <th>英文名</th>
                         <th>分类</th>
                         <th>营养成分</th>
+                        <th>储存方法</th>
+                        <th>描述</th>
                         <th>状态</th>
                         <th>操作</th>
                     </tr>
@@ -260,10 +266,16 @@
                 <tbody>
                     <tr th:each="vegetable : ${vegetables}">
                         <td th:text="${vegetable.id}">1</td>
+                        <td>
+                            <img th:if="${vegetable.image != null && !vegetable.image.isEmpty()}" th:src="${vegetable.image}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                            <span th:if="${vegetable.image == null || vegetable.image.isEmpty()}" style="color: #999; font-size: 12px;">无图片</span>
+                        </td>
                         <td th:text="${vegetable.name}">西红柿</td>
                         <td th:text="${vegetable.nameEn}">Tomato</td>
                         <td th:text="${vegetable.category}">茄果类</td>
                         <td th:text="${#strings.abbreviate(vegetable.nutrition, 30)}">营养成分</td>
+                        <td th:text="${#strings.abbreviate(vegetable.storageMethod, 20)}">储存方法</td>
+                        <td th:text="${#strings.abbreviate(vegetable.description, 20)}">描述</td>
                         <td>
                             <span class="status-badge" th:classappend="${vegetable.status == 1} ? 'active' : 'inactive'" th:text="${vegetable.status == 1} ? '正常' : '禁用'">正常</span>
                         </td>
@@ -285,7 +297,7 @@
                 <h2 id="modalTitle">添加蔬菜</h2>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <form id="vegetableForm" action="/admin/vegetable/save" method="post">
+            <form id="vegetableForm" onsubmit="saveVegetable(event)">
                 <input type="hidden" name="id" id="vegetableId">
                 <div class="form-group">
                     <label>蔬菜名称 *</label>
@@ -329,6 +341,10 @@
                     <textarea name="description" id="vegeDescription"></textarea>
                 </div>
                 <div class="form-group">
+                    <label>图片URL</label>
+                    <input type="text" name="image" id="vegeImage" placeholder="请输入图片URL地址">
+                </div>
+                <div class="form-group">
                     <label>状态</label>
                     <select name="status" id="vegeStatus">
                         <option value="1">正常</option>
@@ -352,9 +368,18 @@
         }
         
         function editVegetable(id) {
-            fetch('/admin/vegetable/' + id)
+            console.log('Editing vegetable with ID:', id);
+            fetch('/api/admin/vegetable/' + id)
                 .then(response => response.json())
-                .then(data => {
+                .then(result => {
+                    console.log('Received result:', result);
+                    if (result.code !== 200) {
+                        alert(result.message || '获取蔬菜信息失败');
+                        return;
+                    }
+                    const data = result.data;
+                    console.log('Vegetable data:', data);
+                    console.log('Vegetable ID:', data.id);
                     document.getElementById('modalTitle').textContent = '编辑蔬菜';
                     document.getElementById('vegetableId').value = data.id;
                     document.getElementById('vegeName').value = data.name;
@@ -365,8 +390,13 @@
                     document.getElementById('vegeSelectionTips').value = data.selectionTips || '';
                     document.getElementById('vegeStorageMethod').value = data.storageMethod || '';
                     document.getElementById('vegeDescription').value = data.description || '';
+                    document.getElementById('vegeImage').value = data.image || '';
                     document.getElementById('vegeStatus').value = data.status;
                     document.getElementById('vegetableModal').classList.add('show');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取蔬菜信息失败');
                 });
         }
         
@@ -383,6 +413,54 @@
         function searchVegetables() {
             const keyword = document.getElementById('searchInput').value;
             window.location.href = '/admin/vegetables?keyword=' + encodeURIComponent(keyword);
+        }
+        
+        function saveVegetable(event) {
+            event.preventDefault();
+            
+            const idValue = document.getElementById('vegetableId').value;
+            const statusValue = document.getElementById('vegeStatus').value;
+            const vegetable = {
+                id: idValue ? parseInt(idValue) : null,
+                name: document.getElementById('vegeName').value,
+                nameEn: document.getElementById('vegeNameEn').value,
+                category: document.getElementById('vegeCategory').value,
+                nutrition: document.getElementById('vegeNutrition').value,
+                benefits: document.getElementById('vegeBenefits').value,
+                selectionTips: document.getElementById('vegeSelectionTips').value,
+                storageMethod: document.getElementById('vegeStorageMethod').value,
+                description: document.getElementById('vegeDescription').value,
+                image: document.getElementById('vegeImage').value,
+                status: statusValue ? parseInt(statusValue) : 1
+            };
+            
+            console.log('Sending vegetable data:', vegetable);
+            
+            fetch('/api/admin/vegetable/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(vegetable)
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(result => {
+                console.log('Response result:', result);
+                if (result.code === 200) {
+                    alert('保存成功');
+                    closeModal();
+                    window.location.reload();
+                } else {
+                    alert(result.message || '保存失败');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('保存失败: ' + error.message);
+            });
         }
     </script>
 </body>

@@ -18,7 +18,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
-public class AdminController {
+public class  AdminController {
 
     @Autowired
     private VegetableService vegetableService;
@@ -39,7 +39,15 @@ public class AdminController {
         if (!checkAdmin(session)) {
             return "redirect:/login";
         }
+        
+        int userCount = userService.findAll().size();
+        int vegetableCount = vegetableService.findAll().size();
+        int recipeCount = recipeService.findAll().size();
+        
         model.addAttribute("user", session.getAttribute("user"));
+        model.addAttribute("userCount", userCount);
+        model.addAttribute("vegetableCount", vegetableCount);
+        model.addAttribute("recipeCount", recipeCount);
         return "admin/dashboard";
     }
 
@@ -91,10 +99,17 @@ public class AdminController {
             return "redirect:/login";
         }
         
+        System.out.println("Saving vegetable: " + vegetable);
+        System.out.println("Vegetable ID: " + vegetable.getId());
+        System.out.println("Vegetable Name: " + vegetable.getName());
+        
+        boolean result;
         if (vegetable.getId() == null) {
-            vegetableService.addVegetable(vegetable);
+            result = vegetableService.addVegetable(vegetable);
+            System.out.println("Add vegetable result: " + result);
         } else {
-            vegetableService.updateVegetable(vegetable);
+            result = vegetableService.updateVegetable(vegetable);
+            System.out.println("Update vegetable result: " + result);
         }
         
         return "redirect:/admin/vegetables";
@@ -122,7 +137,7 @@ public class AdminController {
         if (vegetableId != null) {
             recipes = recipeService.findByVegetableId(vegetableId);
         } else if (keyword != null && !keyword.trim().isEmpty()) {
-            recipes = recipeService.findAll();
+            recipes = recipeService.searchByKeyword(keyword);
         } else {
             recipes = recipeService.findAll();
         }
@@ -199,24 +214,42 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public String users(HttpSession session, Model model) {
+    public String users(@RequestParam(required = false) String keyword,
+                       HttpSession session, Model model) {
         if (!checkAdmin(session)) {
             return "redirect:/login";
         }
         
-        List<User> users = userService.findAll();
+        List<User> users;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            users = userService.searchByKeyword(keyword);
+        } else {
+            users = userService.findAll();
+        }
+        
         model.addAttribute("user", session.getAttribute("user"));
         model.addAttribute("users", users);
+        model.addAttribute("keyword", keyword);
         return "admin/users";
     }
 
-    @GetMapping("/user/status/{id}")
+    @GetMapping("/user/toggle/{id}")
     public String toggleUserStatus(@PathVariable Integer id, HttpSession session) {
         if (!checkAdmin(session)) {
             return "redirect:/login";
         }
         
         userService.toggleStatus(id);
+        return "redirect:/admin/users";
+    }
+
+    @GetMapping("/user/delete/{id}")
+    public String deleteUser(@PathVariable Integer id, HttpSession session) {
+        if (!checkAdmin(session)) {
+            return "redirect:/login";
+        }
+        
+        userService.deleteUser(id);
         return "redirect:/admin/users";
     }
 }

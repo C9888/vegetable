@@ -16,11 +16,16 @@ public class BrowseHistoryService {
     private BrowseHistoryMapper browseHistoryMapper;
 
     public void addHistory(Integer userId, Integer vegetableId) {
+        // 先删除该用户对该蔬菜的旧记录（确保同一个蔬菜ID只出现一次）
+        browseHistoryMapper.deleteByUserIdAndVegetableId(userId, vegetableId);
+
+        // 插入新的浏览记录
         BrowseHistory history = new BrowseHistory();
         history.setUserId(userId);
         history.setVegetableId(vegetableId);
         browseHistoryMapper.insert(history);
-        
+
+        // 删除旧的历史记录，只保留最近3条
         browseHistoryMapper.deleteOldHistory(userId);
     }
 

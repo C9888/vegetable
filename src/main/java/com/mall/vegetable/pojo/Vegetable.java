@@ -16,6 +16,7 @@ public class Vegetable {
     private String storageMethod;
     private String description;
     private Integer status;
+    private Integer calories;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

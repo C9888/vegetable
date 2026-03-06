@@ -222,7 +222,7 @@
                 <div class="stat-icon blue">👥</div>
                 <div class="stat-info">
                     <h3>总用户数</h3>
-                    <p>128</p>
+                    <p th:text="${userCount}">0</p>
                 </div>
             </div>
             
@@ -230,7 +230,7 @@
                 <div class="stat-icon green">🥬</div>
                 <div class="stat-info">
                     <h3>蔬菜种类</h3>
-                    <p>56</p>
+                    <p th:text="${vegetableCount}">0</p>
                 </div>
             </div>
             
@@ -238,7 +238,7 @@
                 <div class="stat-icon orange">🍳</div>
                 <div class="stat-info">
                     <h3>菜谱数量</h3>
-                    <p>234</p>
+                    <p th:text="${recipeCount}">0</p>
                 </div>
             </div>
             
@@ -246,7 +246,7 @@
                 <div class="stat-icon red">📷</div>
                 <div class="stat-info">
                     <h3>识别次数</h3>
-                    <p>1,892</p>
+                    <p>0</p>
                 </div>
             </div>
         </div>
@@ -258,33 +258,21 @@
                 </div>
                 <ul class="menu-list">
                     <li>
-                        <a href="#">
+                        <a href="/admin/users">
                             <span class="menu-icon">👥</span>
                             <span>用户管理</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="/admin/vegetables">
                             <span class="menu-icon">🥬</span>
                             <span>蔬菜管理</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="/admin/recipes">
                             <span class="menu-icon">🍳</span>
                             <span>菜谱管理</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <span class="menu-icon">📊</span>
-                            <span>数据统计</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <span class="menu-icon">⚙️</span>
-                            <span>系统设置</span>
                         </a>
                     </li>
                 </ul>

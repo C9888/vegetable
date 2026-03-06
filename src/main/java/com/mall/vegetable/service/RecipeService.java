@@ -37,4 +37,8 @@ public class RecipeService {
     public boolean deleteRecipe(Integer id) {
         return recipeMapper.deleteById(id) > 0;
     }
+    
+    public List<Recipe> searchByKeyword(String keyword) {
+        return recipeMapper.searchByKeyword(keyword);
+    }
 }

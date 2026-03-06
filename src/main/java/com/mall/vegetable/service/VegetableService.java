@@ -43,7 +43,13 @@ public class VegetableService {
     }
 
     public boolean updateVegetable(Vegetable vegetable) {
-        return vegetableMapper.update(vegetable) > 0;
+        System.out.println("Updating vegetable in service: " + vegetable);
+        System.out.println("Vegetable ID: " + vegetable.getId());
+        System.out.println("Vegetable Name: " + vegetable.getName());
+        System.out.println("Vegetable Status: " + vegetable.getStatus());
+        int result = vegetableMapper.update(vegetable);
+        System.out.println("Update result: " + result);
+        return result > 0;
     }
 
     public boolean deleteVegetable(Integer id) {

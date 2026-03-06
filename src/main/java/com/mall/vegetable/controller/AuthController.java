@@ -127,7 +127,8 @@ public class AuthController {
     @ResponseBody
     public java.util.Map<String, Object> apiLogin(@RequestParam String username,
                                                    @RequestParam String password,
-                                                   @RequestParam(defaultValue = "0") Integer role) {
+                                                   @RequestParam(defaultValue = "0") Integer role,
+                                                   HttpSession session) {
         java.util.Map<String, Object> result = new java.util.HashMap<>();
         
         User user = userService.login(username, password, role);
@@ -143,6 +144,8 @@ public class AuthController {
             result.put("message", "账号已被禁用");
             return result;
         }
+        
+        session.setAttribute("user", user);
         
         result.put("code", 200);
         result.put("message", "登录成功");

@@ -126,4 +126,18 @@ public class UserService {
     public boolean updatePhone(Integer userId, String phone) {
         return userMapper.updatePhone(userId, phone) > 0;
     }
+    
+    /**
+     * 根据关键词搜索用户
+     */
+    public java.util.List<User> searchByKeyword(String keyword) {
+        return userMapper.searchByKeyword(keyword);
+    }
+    
+    /**
+     * 删除用户
+     */
+    public boolean deleteUser(Integer userId) {
+        return userMapper.deleteById(userId) > 0;
+    }
 }

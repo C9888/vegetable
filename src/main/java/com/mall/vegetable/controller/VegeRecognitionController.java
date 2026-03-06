@@ -215,6 +215,7 @@ public class VegeRecognitionController {
         data.put("ingredients", recipe.getIngredients());
         data.put("steps", recipe.getSteps());
         data.put("tips", recipe.getTips());
+        data.put("calories", recipe.getCalories());
         
         Map<String, Object> stats = recipeRatingService.getRecipeRatingStats(recipe.getId());
         data.put("avgScore", stats.get("avgScore"));
@@ -409,12 +410,53 @@ public class VegeRecognitionController {
             vegeMap.put("category", vegetable.getCategory());
             vegeMap.put("image", vegetable.getImage());
             vegeMap.put("nutrition", vegetable.getNutrition());
+            vegeMap.put("calories", vegetable.getCalories());
             vegetableList.add(vegeMap);
         }
         
         result.put("code", 200);
         result.put("message", "查询成功");
         result.put("data", vegetableList);
+        return result;
+    }
+
+    /**
+     * 获取所有菜谱列表（供首页推荐使用）
+     */
+    @GetMapping("/all-recipes")
+    public Map<String, Object> getAllRecipes() {
+        Map<String, Object> result = new HashMap<>();
+        
+        List<Recipe> recipes = recipeService.findAll();
+        
+        List<Map<String, Object>> recipeList = new ArrayList<>();
+        for (Recipe recipe : recipes) {
+            Map<String, Object> recipeMap = new HashMap<>();
+            recipeMap.put("id", recipe.getId());
+            recipeMap.put("name", recipe.getName());
+            recipeMap.put("difficulty", recipe.getDifficulty());
+            recipeMap.put("time", recipe.getTime());
+            recipeMap.put("image", recipe.getImage());
+            recipeMap.put("calories", recipe.getCalories());
+            recipeMap.put("servings", recipe.getServings());
+            
+            Vegetable vege = vegetableService.findById(recipe.getVegetableId());
+            if (vege != null) {
+                recipeMap.put("vegetableName", vege.getName());
+            }
+            
+            Map<String, Object> stats = recipeRatingService.getRecipeRatingStats(recipe.getId());
+            if (stats != null) {
+                recipeMap.put("avgScore", stats.get("avgScore"));
+                recipeMap.put("ratingCount", stats.get("count"));
+            }
+            
+            recipeList.add(recipeMap);
+        }
+        
+        result.put("code", 200);
+        result.put("message", "查询成功");
+        result.put("data", recipeList);
         return result;
     }
 

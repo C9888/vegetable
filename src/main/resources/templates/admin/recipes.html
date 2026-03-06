@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>菜谱管理 - 管理后台</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -267,6 +270,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>图片</th>
                         <th>菜谱名称</th>
                         <th>关联蔬菜</th>
                         <th>难度</th>
@@ -279,6 +283,10 @@
                 <tbody>
                     <tr th:each="recipe : ${recipes}">
                         <td th:text="${recipe.id}">1</td>
+                        <td>
+                            <img th:if="${recipe.image != null && !recipe.image.isEmpty()}" th:src="${recipe.image}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                            <span th:if="${recipe.image == null || recipe.image.isEmpty()}" style="color: #999; font-size: 12px;">无图片</span>
+                        </td>
                         <td th:text="${recipe.name}">西红柿炒鸡蛋</td>
                         <td th:text="${recipe.vegetableName}">西红柿</td>
                         <td>
@@ -307,7 +315,7 @@
                 <h2 id="modalTitle">添加菜谱</h2>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <form id="recipeForm" action="/admin/recipe/save" method="post">
+            <form id="recipeForm" onsubmit="saveRecipe(event)">
                 <input type="hidden" name="id" id="recipeId">
                 <div class="form-group">
                     <label>菜谱名称 *</label>
@@ -351,6 +359,10 @@
                     <textarea name="tips" id="recipeTips"></textarea>
                 </div>
                 <div class="form-group">
+                    <label>图片URL</label>
+                    <input type="text" name="image" id="recipeImage" placeholder="请输入图片URL地址">
+                </div>
+                <div class="form-group">
                     <label>状态</label>
                     <select name="status" id="recipeStatus">
                         <option value="1">正常</option>
@@ -374,9 +386,14 @@
         }
         
         function editRecipe(id) {
-            fetch('/admin/recipe/' + id)
+            fetch('/api/admin/recipe/' + id)
                 .then(response => response.json())
-                .then(data => {
+                .then(result => {
+                    if (result.code !== 200) {
+                        alert(result.message || '获取菜谱信息失败');
+                        return;
+                    }
+                    const data = result.data;
                     document.getElementById('modalTitle').textContent = '编辑菜谱';
                     document.getElementById('recipeId').value = data.id;
                     document.getElementById('recipeName').value = data.name;
@@ -387,8 +404,13 @@
                     document.getElementById('recipeIngredients').value = data.ingredients || '';
                     document.getElementById('recipeSteps').value = data.steps || '';
                     document.getElementById('recipeTips').value = data.tips || '';
+                    document.getElementById('recipeImage').value = data.image || '';
                     document.getElementById('recipeStatus').value = data.status;
                     document.getElementById('recipeModal').classList.add('show');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取菜谱信息失败');
                 });
         }
         
@@ -406,6 +428,55 @@
             const keyword = document.getElementById('searchInput').value;
             const vegetableId = document.getElementById('vegetableFilter').value;
             window.location.href = '/admin/recipes?keyword=' + encodeURIComponent(keyword) + '&vegetableId=' + vegetableId;
+        }
+        
+        function saveRecipe(event) {
+            event.preventDefault();
+            
+            const idValue = document.getElementById('recipeId').value;
+            const statusValue = document.getElementById('recipeStatus').value;
+            const servingsValue = document.getElementById('recipeServings').value;
+            const recipe = {
+                id: idValue ? parseInt(idValue) : null,
+                name: document.getElementById('recipeName').value,
+                vegetableId: parseInt(document.getElementById('recipeVegetableId').value),
+                difficulty: document.getElementById('recipeDifficulty').value,
+                time: document.getElementById('recipeTime').value,
+                servings: servingsValue ? parseInt(servingsValue) : 2,
+                ingredients: document.getElementById('recipeIngredients').value,
+                steps: document.getElementById('recipeSteps').value,
+                tips: document.getElementById('recipeTips').value,
+                image: document.getElementById('recipeImage').value,
+                status: statusValue ? parseInt(statusValue) : 1
+            };
+            
+            console.log('Sending recipe data:', recipe);
+            
+            fetch('/api/admin/recipe/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(recipe)
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(result => {
+                console.log('Response result:', result);
+                if (result.code === 200) {
+                    alert('保存成功');
+                    closeModal();
+                    window.location.reload();
+                } else {
+                    alert(result.message || '保存失败');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('保存失败: ' + error.message);
+            });
         }
     </script>
 </body>

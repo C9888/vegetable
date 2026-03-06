@@ -9,13 +9,37 @@ import java.util.List;
 public interface RecognitionHistoryMapper {
 
     @Select("SELECT * FROM recognition_history WHERE id = #{id}")
+    @Results({
+        @Result(property = "id", column = "id"),
+        @Result(property = "userId", column = "user_id"),
+        @Result(property = "vegetableName", column = "vegetable_name"),
+        @Result(property = "imageUrl", column = "image_url"),
+        @Result(property = "confidence", column = "confidence"),
+        @Result(property = "createTime", column = "create_time")
+    })
     RecognitionHistory findById(Integer id);
 
-    @Select("SELECT * FROM recognition_history WHERE user_id = #{userId} ORDER BY create_time DESC")
+    @Select("SELECT * FROM recognition_history WHERE user_id = #{user_id} ORDER BY create_time DESC")
+    @Results({
+        @Result(property = "id", column = "id"),
+        @Result(property = "userId", column = "user_id"),
+        @Result(property = "vegetableName", column = "vegetable_name"),
+        @Result(property = "imageUrl", column = "image_url"),
+        @Result(property = "confidence", column = "confidence"),
+        @Result(property = "createTime", column = "create_time")
+    })
     List<RecognitionHistory> findByUserId(Integer userId);
 
-    @Select("SELECT * FROM recognition_history WHERE user_id = #{userId} ORDER BY create_time DESC LIMIT #{limit}")
-    List<RecognitionHistory> findRecentByUserId(@Param("userId") Integer userId, @Param("limit") int limit);
+    @Select("SELECT * FROM recognition_history WHERE user_id = #{user_id} ORDER BY create_time DESC LIMIT #{limit}")
+    @Results({
+        @Result(property = "id", column = "id"),
+        @Result(property = "userId", column = "user_id"),
+        @Result(property = "vegetableName", column = "vegetable_name"),
+        @Result(property = "imageUrl", column = "image_url"),
+        @Result(property = "confidence", column = "confidence"),
+        @Result(property = "createTime", column = "create_time")
+    })
+    List<RecognitionHistory> findRecentByUserId(@Param("user_id") Integer userId, @Param("limit") int limit);
 
     @Insert("INSERT INTO recognition_history (user_id, vegetable_name, image_url, confidence, create_time) " +
             "VALUES (#{userId}, #{vegetableName}, #{imageUrl}, #{confidence}, NOW())")

@@ -7,11 +7,11 @@ import java.util.List;
 
 @Mapper
 public interface BrowseHistoryMapper {
-    
-    @Insert("INSERT INTO browse_history(user_id, vegetable_id) VALUES(#{userId}, #{vegetableId})")
+
+    @Insert("INSERT INTO browse_history(user_id, vegetable_id, browse_time) VALUES(#{userId}, #{vegetableId}, NOW())")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(BrowseHistory history);
-    
+
     @Select("SELECT h.*, v.id as ve_id, v.name as ve_name, v.category as ve_category, " +
             "v.description as ve_description, v.image as ve_image " +
             "FROM browse_history h " +
@@ -31,12 +31,16 @@ public interface BrowseHistoryMapper {
         @Result(property = "vegetable.image", column = "ve_image")
     })
     List<BrowseHistory> findByUserId(@Param("userId") Integer userId);
-    
+
     @Select("SELECT COUNT(*) FROM browse_history WHERE user_id = #{userId}")
     int countByUserId(@Param("userId") Integer userId);
-    
+
     @Delete("DELETE FROM browse_history WHERE user_id = #{userId} AND id NOT IN " +
             "(SELECT id FROM (SELECT id FROM browse_history WHERE user_id = #{userId} " +
             "ORDER BY browse_time DESC LIMIT 3) AS temp)")
     void deleteOldHistory(@Param("userId") Integer userId);
+
+    @Delete("DELETE FROM browse_history WHERE user_id = #{userId} AND vegetable_id = #{vegetableId}")
+    void deleteByUserIdAndVegetableId(@Param("userId") Integer userId, @Param("vegetableId") Integer vegetableId);
+
 }
