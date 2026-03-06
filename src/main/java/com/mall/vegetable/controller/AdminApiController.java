@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -24,6 +25,9 @@ public class AdminApiController {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private com.mall.vegetable.service.RecipeRatingService recipeRatingService;
 
     @GetMapping("/vegetables")
     public ApiResponse<List<Vegetable>> getAllVegetables() {
@@ -72,6 +76,9 @@ public class AdminApiController {
             if (vege != null) {
                 recipe.setVegetableName(vege.getName());
             }
+            Map<String, Object> stats = recipeRatingService.getRecipeRatingStats(recipe.getId());
+            recipe.setAvgScore((Double) stats.get("avgScore"));
+            recipe.setRatingCount((Integer) stats.get("count"));
         }
         return ApiResponse.success(recipes);
     }
@@ -86,6 +93,9 @@ public class AdminApiController {
         if (vege != null) {
             recipe.setVegetableName(vege.getName());
         }
+        Map<String, Object> stats = recipeRatingService.getRecipeRatingStats(recipe.getId());
+        recipe.setAvgScore((Double) stats.get("avgScore"));
+        recipe.setRatingCount((Integer) stats.get("count"));
         return ApiResponse.success(recipe);
     }
 

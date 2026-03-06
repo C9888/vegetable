@@ -27,6 +27,9 @@ public class VegeRecognitionController {
     @Autowired
     private RecognitionHistoryService recognitionHistoryService;
 
+    @Autowired
+    private com.mall.vegetable.service.RecipeRatingService recipeRatingService;
+
     /**
      * 蔬菜识别接口
      */
@@ -104,6 +107,7 @@ public class VegeRecognitionController {
         data.put("selectionTips", vegetable.getSelectionTips());
         data.put("storageMethod", vegetable.getStorageMethod());
         data.put("description", vegetable.getDescription());
+        
         
         // 获取推荐菜谱
         List<Recipe> recipes = recipeService.findByVegetableId(vegetable.getId());
@@ -212,6 +216,10 @@ public class VegeRecognitionController {
         data.put("steps", recipe.getSteps());
         data.put("tips", recipe.getTips());
         
+        Map<String, Object> stats = recipeRatingService.getRecipeRatingStats(recipe.getId());
+        data.put("avgScore", stats.get("avgScore"));
+        data.put("ratingCount", stats.get("count"));
+        
         result.put("data", data);
         return result;
     }
@@ -238,6 +246,64 @@ public class VegeRecognitionController {
         result.put("code", 200);
         result.put("message", "查询成功");
         result.put("data", vegetableList);
+        return result;
+    }
+
+    @PostMapping("/recipe/rating")
+    public Map<String, Object> addOrUpdateRating(@RequestParam Integer recipeId,
+                                                  @RequestParam Integer userId,
+                                                  @RequestParam Integer score,
+                                                  @RequestParam(required = false) String comment) {
+        Map<String, Object> result = new HashMap<>();
+        
+        if (score < 1 || score > 5) {
+            result.put("code", 400);
+            result.put("message", "评分必须在1-5之间");
+            return result;
+        }
+        
+        try {
+            com.mall.vegetable.pojo.RecipeRating rating = new com.mall.vegetable.pojo.RecipeRating();
+            rating.setRecipeId(recipeId);
+            rating.setUserId(userId);
+            rating.setScore(score);
+            rating.setComment(comment);
+            
+            recipeRatingService.addOrUpdateRating(rating);
+            
+            result.put("code", 200);
+            result.put("message", "评分成功");
+            return result;
+        } catch (Exception e) {
+            result.put("code", 500);
+            result.put("message", "评分失败: " + e.getMessage());
+            return result;
+        }
+    }
+
+    @GetMapping("/recipe/rating/{recipeId}")
+    public Map<String, Object> getRecipeRating(@PathVariable Integer recipeId,
+                                                @RequestParam(required = false) Integer userId) {
+        Map<String, Object> result = new HashMap<>();
+        
+        Map<String, Object> stats = recipeRatingService.getRecipeRatingStats(recipeId);
+        List<com.mall.vegetable.pojo.RecipeRating> ratings = recipeRatingService.getRecipeRatings(recipeId);
+        
+        com.mall.vegetable.pojo.RecipeRating userRating = null;
+        if (userId != null) {
+            userRating = recipeRatingService.getUserRating(recipeId, userId);
+        }
+        
+        result.put("code", 200);
+        result.put("message", "查询成功");
+        
+        Map<String, Object> data = new HashMap<>();
+        data.put("avgScore", stats.get("avgScore"));
+        data.put("count", stats.get("count"));
+        data.put("userRating", userRating);
+        data.put("ratings", ratings);
+        
+        result.put("data", data);
         return result;
     }
 

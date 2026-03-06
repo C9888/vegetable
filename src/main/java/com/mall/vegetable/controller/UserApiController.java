@@ -61,4 +61,28 @@ public class UserApiController {
             return ApiResponse.error("修改失败: " + e.getMessage());
         }
     }
+
+    @PostMapping("/updateProfile")
+    public ApiResponse<String> updateProfile(@RequestParam Integer userId,
+                                           @RequestParam(required = false) String email,
+                                           @RequestParam(required = false) String avatar) {
+        try {
+            User user = userService.findById(userId);
+            if (user == null) {
+                return ApiResponse.error("用户不存在");
+            }
+            
+            if (email != null) {
+                user.setEmail(email);
+            }
+            if (avatar != null) {
+                user.setAvatar(avatar);
+            }
+            
+            userService.updateUser(user);
+            return ApiResponse.success("个人信息更新成功");
+        } catch (Exception e) {
+            return ApiResponse.error("更新失败: " + e.getMessage());
+        }
+    }
 }

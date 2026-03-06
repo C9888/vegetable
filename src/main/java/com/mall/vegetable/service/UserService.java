@@ -23,17 +23,25 @@ public class UserService {
             return null;
         }
         
-        // 验证密码
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            return null;
+        // 先尝试BCrypt加密验证
+        if (passwordEncoder.matches(password, user.getPassword())) {
+            // 验证角色
+            if (role != null && !user.getRole().equals(role)) {
+                return null;
+            }
+            return user;
         }
         
-        // 验证角色
-        if (role != null && !user.getRole().equals(role)) {
-            return null;
+        // 如果BCrypt验证失败，尝试明文密码验证（兼容旧数据）
+        if (password.equals(user.getPassword())) {
+            // 验证角色
+            if (role != null && !user.getRole().equals(role)) {
+                return null;
+            }
+            return user;
         }
         
-        return user;
+        return null;
     }
 
     /**

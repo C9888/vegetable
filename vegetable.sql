@@ -186,4 +186,24 @@ CREATE TABLE `browse_history`  (
 -- Records of browse_history
 -- ----------------------------
 
+-- ----------------------------
+-- Table structure for recipe_rating
+-- ----------------------------
+DROP TABLE IF EXISTS `recipe_rating`;
+CREATE TABLE `recipe_rating`  (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '评价ID',
+  `recipe_id` int NOT NULL COMMENT '菜谱ID',
+  `user_id` int NOT NULL COMMENT '用户ID',
+  `score` tinyint NOT NULL COMMENT '评分（1-5）',
+  `comment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '评价内容',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '评价时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_recipe_user`(`recipe_id` ASC, `user_id` ASC) USING BTREE,
+  INDEX `idx_recipe_id`(`recipe_id` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜谱评分表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of recipe_rating
+-- ----------------------------
+
 SET FOREIGN_KEY_CHECKS = 1;

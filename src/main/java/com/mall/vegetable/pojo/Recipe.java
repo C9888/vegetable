@@ -19,4 +19,6 @@ public class Recipe {
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private String vegetableName;
+    private Double avgScore;
+    private Integer ratingCount;
 }
